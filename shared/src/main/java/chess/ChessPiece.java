@@ -1,6 +1,9 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
+
+import chess.piecemoves.*;
 
 /**
  * Represents a single chess piece
@@ -11,6 +14,7 @@ import java.util.Collection;
 public class ChessPiece {
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+    private MoveCalculator moveCalculator;
 
     /**
      * The various different chess piece options
@@ -28,6 +32,16 @@ public class ChessPiece {
         this.pieceColor = pieceColor;
         this.type = type;
         //this is where the move calculator is going to go
+        this.moveCalculator = moveCalculator;
+
+        this.moveCalculator = switch(this.type) {
+            case PAWN -> new PawnMoveCalculator();
+            case ROOK -> new RookMoveCalculator();
+            case BISHOP -> new BishopMoveCalculator();
+            case KING -> new KingMoveCalculator();
+            case QUEEN -> new QueenMoveCalculator();
+            case KNIGHT -> new KnightMoveCalculator();
+        };
     }
 
 
@@ -53,6 +67,29 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return moveCalculator.calculate(board, myPosition, this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                ", moveCalculator=" + moveCalculator +
+                '}';
     }
 }
